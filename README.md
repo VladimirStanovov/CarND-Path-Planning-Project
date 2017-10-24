@@ -13,21 +13,22 @@ In this project your goal is to safely navigate around a virtual highway with ot
 
 ### Project pipeline
 
-#To succesfully perform path planning, the following steps should be completed at every iteration of the algorithm:
+##To succesfully perform path planning, the following steps should be completed at every iteration of the algorithm:
 1. Determine current state, lane number and velocity,
 2. Get the successor states for current state,
 3. Create a trajectory for each state,
 4. Calculate cost for each trajectory,
 5. Change state to the state with the lowest trajectory cost.
 
-#The finite automata is used to define the successor states. In my solution, there were 5 states:
-1. KL - keep current lane. The vehicle will do maximum safe acceleration in its lane,
+##The finite automata is used to define the successor states. In my solution, there were 5 states:
+1. KL - keep (current) lane. The vehicle will do maximum safe acceleration in its lane,
 2. PLCL - prepare lane change left. Vehicle changes to this state in case if the front vehicle is moving too slow. Changing to this state does not mean lane change, but the control algorithm calculates cost for the LCL state.
 3. PLCR - prepare lane change right. Same as PLCL, but looks at the right lane,
 4. LCL - lane change left - executes left lane change immediately,
 5. LCR - lane change right - executes right lane change immediately.
 
-#The states have the following successors:
+##The states have the following successors:
+
 KL: PLCL, PLCR
 
 PLCL: KL, PLCL, PLCR, LCL
