@@ -51,7 +51,7 @@ Trajectory generation considered three main cases, i.e. KL, PLC*, LC*. For each 
 2. For each vehicle in the sensor fusion array:
 3. Compare the vehicle's d position with current lane
 4. If the vehicle is in the same lane:
-5. Check its s position, and if it is in front, adjust desired speed to its velocity.
+5. Check its s position in the future, and if it is in front, adjust desired speed to its velocity.
 
 The desired velocity was updated with the following equaion: desired_vel = (1-dist_coeff) * max_speed + dist_coeff * front_speed.
 This allows gradual change of desired velocity between the max speed and the speed of the vehicle in front.
@@ -100,3 +100,5 @@ One additional feature is that if we perform a lane change, we should at least s
 
 #### Results and discussion
 
+The resulting behaviour of the descirbed path planner appears to fulfill all requirements, i.e. the vehicle is capable of driving for up to 50 miles around the track without incidents. However, the weak part remains to be the collision detection method: in some cases, in a traffic jam, if front vehicles start accelerating and decelerating, as well as vehicle in other lanes, the ego vehicle may decide to make a lane change which could be unsafe due to the fact that the vehicle in the other lane would decide to accelerate. This may result in a collision, which can be avoided by setting the safe range for LC* states to more then 10 meters. However, this increase also results into more "fearful" lane changing, so that the ego vehicle does not perform a lane change, when it is obviously safe to do that.
+Another disadvantage is that double lane changes are not in the model. Sometimes, it is better to make a double change to go faster, and the path planner won't see such opportunity.
