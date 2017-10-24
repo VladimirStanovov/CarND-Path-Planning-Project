@@ -47,8 +47,8 @@ Note that I added transition from PLCL to PLCR and back, as it seems important, 
 Trajectory generation considered three main cases, i.e. KL, PLC*, LC*. For each of the cases, the lane number and the desired velocity was calculated (which is different from reference velocity). Reference velocity is used at the last step of the trajectory generation, whereas the desired velocity is the one to which reference velocity is adjusted.
 In the case of "KL" state, the following steps are performed:
 
-Set desired velocity to speed limit,
-For each vehicle in the sensor fusion array:
-   Compare the vehicle's d position with current lane
-   If the vehicle is in the same lane:
-      Check its s position, and if it is in front, adjust desired speed to its velocity.
+1. Set desired velocity to speed limit,
+2. For each vehicle in the sensor fusion array:
+3. Compare the vehicle's d position with current lane
+4. If the vehicle is in the same lane:
+5. Check its s position, and if it is in front, adjust desired speed to its velocity.
