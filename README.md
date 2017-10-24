@@ -40,6 +40,15 @@ LCL: KL
 LCR: KL
 
 
-Note that I added transition from PLCL to PLCR, as it seems important, for example, in case if one of the adjacent lanes was busy and less promising for a lane change, but then the situation changes and it becomes more promising than the opposite.
+Note that I added transition from PLCL to PLCR and back, as it seems important, for example, in case if one of the adjacent lanes was busy and less promising for a lane change, but then the situation changes and it becomes more promising than the opposite.
 
+### Trajectory generation
 
+Trajectory generation considered three main cases, i.e. KL, PLC*, LC*. For each of the cases, the lane number and the desired velocity was calculated (which is different from reference velocity). Reference velocity is used at the last step of the trajectory generation, whereas the desired velocity is the one to which reference velocity is adjusted.
+In the case of "KL" state, the following steps are performed:
+
+Set desired velocity to speed limit,
+For each vehicle in the sensor fusion array:
+   Compare the vehicle's d position with current lane
+   If the vehicle is in the same lane:
+      Check its s position, and if it is in front, adjust desired speed to its velocity.
