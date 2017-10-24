@@ -29,10 +29,15 @@ In this project your goal is to safely navigate around a virtual highway with ot
 
 #The states have the following successors:
 KL: PLCL, PLCR
+
 PLCL: KL, PLCL, PLCR, LCL
+
 PLCR: KL, PLCL, PLCR, LCR
+
 LCL: KL
+
 LCR: KL
+
 
 Note that I added transition from PLCL to PLCR, as it seems important, for example, in case if one of the adjacent lanes was busy and less promising for a lane change, but then the situation changes and it becomes more promising than the opposite.
 
