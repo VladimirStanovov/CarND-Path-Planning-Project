@@ -45,7 +45,7 @@ Note that I added transition from PLCL to PLCR and back, as it seems important, 
 ### Trajectory generation
 
 Trajectory generation considered three main cases, i.e. KL, PLC*, LC*. For each of the cases, the lane number and the desired velocity was calculated (which is different from reference velocity). Reference velocity is used at the last step of the trajectory generation, whereas the desired velocity is the one to which reference velocity is adjusted.
-In the case of "KL" state, the following steps are performed:
+#### In the case of "KL" state, the following steps are performed:
 
 1. Set desired velocity to speed limit,
 2. For each vehicle in the sensor fusion array:
@@ -53,6 +53,50 @@ In the case of "KL" state, the following steps are performed:
 4. If the vehicle is in the same lane:
 5. Check its s position, and if it is in front, adjust desired speed to its velocity.
 
-The desired velocity was updated with the following equaion: desired_vel = (1-distance_coeff) * max_speed + dist_coeff * front_speed.
+The desired velocity was updated with the following equaion: desired_vel = (1-dist_coeff) * max_speed + dist_coeff * front_speed.
 This allows gradual change of desired velocity between the max speed and the speed of the vehicle in front.
+The dist_coeff if the coefficient in range [0,1], which shows how the velocity of the ego vehicle should be adjusted according to the distance from the front vehicle. The dist_coeff is calculated as follows: dist_coeff = 1/(1+exp((front_dist-16) * 0.4)). At the distance of 16 meters and lower the desired speed will be set to the front vehicle speed.
+After calculating the desired velocity, we set the project velocity variable same as desired velocity. The project velocity meaning is described lower.
+
+#### In the case of "PLC*" state, the following steps are performed:
+
+1. Calculate desired velocity same as in "KL" state (we have to stay in our lane)
+2. Calculate the "project velocity" which is the velocity that the vehicle will have if it will change into specific lane.
+
+The project velocity is calculated in a similar manner to the desired velocity. The only change is the lane number - we pretend that we are in a different lane and see (only forward) if we can go faster there.
+
+#### In case of "LC*" state, the following steps are performed:
+
+1. Change lane number
+2. Calculate desired speed and project speed in the other lane. The project speed is set to be the same as desired speed.
+3. Check for collisions. If there is at least one vehicle in the lane we are going to change to in a range [-10,10] meters, mark the lane change as "unsafe". In this case the project velocity is set to 0, which results in maximum cost.
+
+#### Calculating path points
+
+After we have set our lane and desired velocity, we need to generate the path. Path generation actually uses the code from the project walkthrough with a couple of changes. The pipeline is as follows:
+
+1. Get all the available points of the previous path from the simulator
+2. Define 3 next waypoints at the distance of 50, 100 and 150 meters (larger distances make smoother path)
+3. Use current vehicle positions and waypoints to generate a spline interpolation
+4. Get new path points from the interpolation with the target_x set to 60 meters
+5. For all the new waypoints: update reference velocity according to the difference between desired and reference velocity, as well as acceleration limit (0.224)
+
+The generated path, as well as desired, project and reference velocity and lane number are returned from the trajectory generation function.
+
+#### Calculating cost
+
+The cost function relies on the lane number and project speed, as well as previous lane number, max speed and a number of constants. It is calculated as follows:
+
+1. If the lane is changed, cost = cost + 0.5
+2. If the new lane is invalid, cost = cost + 100
+3. If the state is PLC*, cost = cost + max_speed + 1.5 - project_velocity
+4. If the state is not PLC*, cost = cost + max_speed - project_velocity
+
+The cost functuin is constructed so that keeping lane in the best choise if there are no obstacels, PLC* states are activated only if the project speed falls (we see that we have to brake), and the lane change is less preferable than keeping lane, unless the project speed in KL state is too small.
+
+#### Additional vehicle logic
+
+One additional feature is that if we perform a lane change, we should at least stay in this lane for some perioud of time (say, make at least 100 meters in this lane), because changing lanes instantly from one to another does not look like a nice, predictable driving behaviour for other drivers. So, after a lane change, further changes are blocked for the next 100m of the track.
+
+#### Results and discussion
 
