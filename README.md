@@ -13,14 +13,14 @@ In this project your goal is to safely navigate around a virtual highway with ot
 
 ### Project pipeline
 
-#### To succesfully perform path planning, the following steps should be completed at every iteration of the algorithm:
+#### To successfully perform path planning, the following steps should be completed at every iteration of the algorithm:
 1. Determine current state, lane number and velocity,
 2. Get the successor states for current state,
 3. Create a trajectory for each state,
 4. Calculate cost for each trajectory,
 5. Change state to the state with the lowest trajectory cost.
 
-#### The finite automata is used to define the successor states. In my solution, there were 5 states:
+#### The finite automaton is used to define the successor states. In my solution, there were 5 states:
 1. KL - keep (current) lane. The vehicle will do maximum safe acceleration in its lane,
 2. PLCL - prepare lane change left. Vehicle changes to this state in case if the front vehicle is moving too slow. Changing to this state does not mean lane change, but the control algorithm calculates cost for the LCL state.
 3. PLCR - prepare lane change right. Same as PLCL, but looks at the right lane,
@@ -53,7 +53,7 @@ Trajectory generation considered three main cases, i.e. KL, PLC*, LC*. For each 
 4. If the vehicle is in the same lane:
 5. Check its s position in the future, and if it is in front, adjust desired speed to its velocity.
 
-The desired velocity was updated with the following equaion: desired_vel = (1-dist_coeff) * max_speed + dist_coeff * front_speed.
+The desired velocity was updated with the following equation: desired_vel = (1-dist_coeff) * max_speed + dist_coeff * front_speed.
 This allows gradual change of desired velocity between the max speed and the speed of the vehicle in front.
 The dist_coeff if the coefficient in range [0,1], which shows how the velocity of the ego vehicle should be adjusted according to the distance from the front vehicle. The dist_coeff is calculated as follows: dist_coeff = 1/(1+exp((front_dist-16) * 0.4)). At the distance of 16 meters and lower the desired speed will be set to the front vehicle speed.
 After calculating the desired velocity, we set the project velocity variable same as desired velocity. The project velocity meaning is described lower.
@@ -92,13 +92,13 @@ The cost function relies on the lane number and project speed, as well as previo
 3. If the state is PLC*, cost = cost + max_speed + 1.5 - project_velocity
 4. If the state is not PLC*, cost = cost + max_speed - project_velocity
 
-The cost functuin is constructed so that keeping lane in the best choise if there are no obstacels, PLC* states are activated only if the project speed falls (we see that we have to brake), and the lane change is less preferable than keeping lane, unless the project speed in KL state is too small.
+The cost function is constructed so that keeping lane in the best choice if there are no obstacles, PLC* states are activated only if the project speed falls (we see that we have to brake), and the lane change is less preferable than keeping lane, unless the project speed in KL state is too small.
 
 #### Additional vehicle logic
 
-One additional feature is that if we perform a lane change, we should at least stay in this lane for some perioud of time (say, make at least 100 meters in this lane), because changing lanes instantly from one to another does not look like a nice, predictable driving behaviour for other drivers. So, after a lane change, further changes are blocked for the next 100m of the track.
+One additional feature is that if we perform a lane change, we should at least stay in this lane for some period of time (say, make at least 100 meters in this lane), because changing lanes instantly from one to another does not look like a nice, predictable driving behaviour for other drivers. So, after a lane change, further changes are blocked for the next 100m of the track.
 
 #### Results and discussion
 
-The resulting behaviour of the descirbed path planner appears to fulfill all requirements, i.e. the vehicle is capable of driving for up to 50 miles around the track without incidents. However, the weak part remains to be the collision detection method: in some cases, in a traffic jam, if front vehicles start accelerating and decelerating, as well as vehicle in other lanes, the ego vehicle may decide to make a lane change which could be unsafe due to the fact that the vehicle in the other lane would decide to accelerate. This may result in a collision, which can be avoided by setting the safe range for LC* states to more then 10 meters. However, this increase also results into more "fearful" lane changing, so that the ego vehicle does not perform a lane change, when it is obviously safe to do that.
+The resulting behavior of the described path planner appears to fulfill all requirements, i.e. the vehicle is capable of driving for up to 50 miles around the track without incidents. However, the weak part remains to be the collision detection method: in some cases, in a traffic jam, if front vehicles start accelerating and decelerating, as well as vehicle in other lanes, the ego vehicle may decide to make a lane change which could be unsafe due to the fact that the vehicle in the other lane would decide to accelerate. This may result in a collision, which can be avoided by setting the safe range for LC* states to more then 10 meters. However, this increase also results into more "fearful" lane changing, so that the ego vehicle does not perform a lane change, when it is obviously safe to do that.
 Another disadvantage is that double lane changes are not in the model. Sometimes, it is better to make a double change to go faster, and the path planner won't see such opportunity.
