@@ -52,3 +52,7 @@ In the case of "KL" state, the following steps are performed:
 3. Compare the vehicle's d position with current lane
 4. If the vehicle is in the same lane:
 5. Check its s position, and if it is in front, adjust desired speed to its velocity.
+
+The desired velocity was updated with the following equaion: desired_vel = (1-distance_coeff) * max_speed + dist_coeff * front_speed.
+This allows gradual change of desired velocity between the max speed and the speed of the vehicle in front.
+
